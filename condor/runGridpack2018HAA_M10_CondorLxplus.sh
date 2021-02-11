@@ -20,7 +20,7 @@ SAMPLEDIR=${BASEDIR}/samples
 HADRONIZER="externalLHEProducer_and_PYTHIA8_Hadronizer"
 namebase=${GP_f/.tar.xz/}
 #nevent=500
-nevent=1000
+nevent=10
 amass=10
 
 export VO_CMS_SW_DIR=/cvmfs/cms.cern.ch
@@ -52,19 +52,17 @@ mkdir -p Configuration/GenProduction/python/
 cp "${BASEDIR}/config/haa_a${amass}_cff.py" Configuration/GenProduction/python/.
 eval `scram runtime -sh`
 scram b -j 4
-echo "0.) Generating GEN for a mass ${amass}"
+echo "0.) Generating GEN for a mass ${amass} - 2018 "
 genfragment=${namebase}_GEN_cfg_${amass}.py
 
 ##Modify cmsDriver command with the latest conditions consistent with 
-cmsDriver.py Configuration/GenProduction/python/haa_a${amass}_cff.py         \
+cmsDriver.py Configuration/GenProduction/python/haa_a${amass}_cff.py \
     --fileout file:${namebase}_${amass}_GEN.root         \
-    --mc --eventcontent RAWSIM --datatier GEN --conditions 106X_mc2017_realistic_v8 \
-    --beamspot Realistic25ns13TeVEarly2017Collision --step LHE,GEN \
-    --era Run2_2017 --nThreads 3 --geometry DB:Extended \
+    --mc --eventcontent RAWSIM --datatier GEN --conditions 106X_upgrade2018_realistic_v15_L1v1 \
+    --beamspot Realistic25ns13TeVEarly2018Collision --step LHE,GEN \
+    --era Run2_2018 --nThreads 3 --geometry DB:Extended \
     --customise Configuration/DataProcessing/Utils.addMonitoring         \
     --python_filename ${genfragment} --no_exec -n ${nevent}
-
-
 
 #Make each file unique to make later publication possible
 # linenumber=`grep -n 'process.source' ${genfragment} | awk '{print $1}'`
@@ -85,42 +83,47 @@ cmsRun -p ${genfragment}
 echo "1.) Generating SIM for a mass ${amass}"
 cmsDriver.py step2 \
     --filein file:${namebase}_${amass}_GEN.root --fileout file:${namebase}_${amass}_SIM.root \
-    --mc --eventcontent RAWSIM --runUnscheduled --datatier GEN-SIM --conditions 106X_mc2017_realistic_v8 \
-    --beamspot Realistic25ns13TeVEarly2017Collision --step SIM --nThreads 8 --geometry DB:Extended --era Run2_2017 \
+    --mc --eventcontent RAWSIM --runUnscheduled --datatier GEN-SIM --conditions 106X_upgrade2018_realistic_v15_L1v1 \
+    --beamspot Realistic25ns13TeVEarly2018Collision --step SIM --nThreads 8 --geometry DB:Extended --era Run2_2018 \
     --python_filename ${namebase}_${amass}_SIM_cfg.py --no_exec \
     --customise Configuration/DataProcessing/Utils.addMonitoring --number ${nevent} || exit $?;
 
 cmsRun -p ${namebase}_${amass}_SIM_cfg.py 
 
 
-echo "2.) Generating DIGI(premix) for a mass ${amass}" 
+echo "2.) Generating DIGI(premix) for a mass ${amass} - 2018" 
 cmsDriver.py step3 \
-    --filein file:${namebase}_${amass}_SIM.root --fileout file:${namebase}_${amass}_DIGIPremix.root  --pileup_input "dbs:/Neutrino_E-10_gun/RunIISummer20ULPrePremix-UL17_106X_mc2017_realistic_v6-v3/PREMIX" \
-    --mc --eventcontent PREMIXRAW --runUnscheduled --datatier GEN-SIM-DIGI --conditions 106X_mc2017_realistic_v6 --step DIGI,DATAMIX,L1,DIGI2RAW --procModifiers premix_stage2 \
-    --nThreads 8 --geometry DB:Extended --datamix PreMix --era Run2_2017 --python_filename  ${namebase}_${amass}_DIGIPremix_cfg.py --no_exec \
-    --customise Configuration/DataProcessing/Utils.addMonitoring --number ${nevent} || exit $?;
+ --filein file:${namebase}_${amass}_SIM.root --fileout file:${namebase}_${amass}_DIGIPremix.root  \
+--pileup_input "dbs:/Neutrino_E-10_gun/RunIISummer20ULPrePremix-UL18_106X_upgrade2018_realistic_v11_L1v1-v2/PREMIX" \
+--mc --eventcontent PREMIXRAW --runUnscheduled --datatier GEN-SIM-DIGI --conditions 106X_upgrade2018_realistic_v15_L1v1 --step DIGI,DATAMIX,L1,DIGI2RAW --procModifiers premix_stage2 \
+--nThreads 8 --geometry DB:Extended --datamix PreMix --era Run2_2018 --python_filename  ${namebase}_${amass}_DIGIPremix_cfg.py --no_exec \
+--customise Configuration/DataProcessing/Utils.addMonitoring --number ${nevent} || exit $?;
 
 
 cmsRun -p  ${namebase}_${amass}_DIGIPremix_cfg.py
 
 
-echo "3.) Generating HLT for a mass ${amass} in new CMSSW"
+echo "3.) Generating HLT for a mass ${amass} in new CMSSW - 2018"
 
 cd ../../.
-export SCRAM_ARCH=slc7_amd64_gcc630
-if ! [ -r CMSSW_9_4_14_UL_patch1/src ] ; then
-    scram p CMSSW_9_4_14_UL_patch1   
+export SCRAM_ARCH=slc7_amd64_gcc700
+if ! [ -r CMSSW_10_2_16_UL/src ] ; then
+    scram p CMSSW_10_2_16_UL    
 fi
-mv CMSSW_10_6_20/src/${namebase}_${amass}_DIGIPremix.root CMSSW_9_4_14_UL_patch1/src/.  
+mv CMSSW_10_6_20/src/${namebase}_${amass}_DIGIPremix.root CMSSW_10_2_16_UL/src/.  
 
-cd CMSSW_9_4_14_UL_patch1/src/
+cd CMSSW_10_2_16_UL/src/
 eval `scram runtime -sh`
 
 cmsDriver.py step4 \
 --filein file:${namebase}_${amass}_DIGIPremix.root --fileout file:${namebase}_${amass}_HLT.root --mc --eventcontent RAWSIM \
---datatier GEN-SIM-RAW --conditions 94X_mc2017_realistic_v15 --customise_commands 'process.source.bypassVersionCheck = cms.untracked.bool(True)' --step HLT:2e34v40 --nThreads 8 \
---geometry DB:Extended --era Run2_2017 --python_filename  ${namebase}_${amass}_HLT_cfg.py  --no_exec \
+--datatier GEN-SIM-RAW --conditions 102X_upgrade2018_realistic_v15 --customise_commands 'process.source.bypassVersionCheck = cms.untracked.bool(True)' --step HLT:2018v32 --nThreads 8 \
+--geometry DB:Extended --era Run2_2018 --python_filename  ${namebase}_${amass}_HLT_cfg.py  --no_exec \
 --customise Configuration/DataProcessing/Utils.addMonitoring --number ${nevent} || exit $?;
+
+
+cmsDriver.py step4 --filein file:DIGIPremix.root --fileout file:HLT.root --mc --eventcontent RAWSIM --datatier GEN-SIM-RAW --conditions 102X_upgrade2018_realistic_v15 --customise_commands 'process.source.bypassVersionCheck = cms.untracked.bool(True)' --step HLT:2018v32 --nThreads 8 --geometry DB:Extended --era Run2_2018 --python_filename HLT_2018_cfg.py -n 10 --no_exec
+
 
 cmsRun -p  ${namebase}_${amass}_HLT_cfg.py
 
@@ -129,22 +132,23 @@ cmsRun -p  ${namebase}_${amass}_HLT_cfg.py
 
 cd ../../.
 
-echo "4.) Generating RECO for a mass ${amass} in previous CMSSW"
+echo "4.) Generating RECO for a mass ${amass} in previous CMSSW - 2018"
 
 export SCRAM_ARCH=slc7_amd64_gcc820
 if ! [ -r CMSSW_10_6_20/src ] ; then
     scram p CMSSW CMSSW_10_6_20
 fi
-mv CMSSW_9_4_14_UL_patch1/src/${namebase}_${amass}_HLT.root CMSSW_10_6_20/src/. 
+mv CMSSW_10_2_16_UL/src/${namebase}_${amass}_HLT.root CMSSW_10_6_20/src/. 
 
 cd CMSSW_10_6_20/src/
 eval `scram runtime -sh`
 
 cmsDriver.py step5 \
 --filein file:${namebase}_${amass}_HLT.root  --fileout file:${namebase}_${amass}_recoAOD.root --mc --eventcontent AODSIM --runUnscheduled \
---datatier AODSIM --conditions 106X_mc2017_realistic_v6 --step RAW2DIGI,L1Reco,RECO,RECOSIM --nThreads 8 --geometry DB:Extended \
---era Run2_2017 --python_filename ${namebase}_${amass}_recoAOD_cfg.py --no_exec \
+--datatier AODSIM --conditions 106X_upgrade2018_realistic_v15_L1v1 --step RAW2DIGI,L1Reco,RECO,RECOSIM --nThreads 8 --geometry DB:Extended \
+--era Run2_2018 --python_filename ${namebase}_${amass}_recoAOD_cfg.py --no_exec \
 --customise Configuration/DataProcessing/Utils.addMonitoring --number ${nevent} || exit $?;
+
 
 cmsRun -p  ${namebase}_${amass}_recoAOD_cfg.py
 
