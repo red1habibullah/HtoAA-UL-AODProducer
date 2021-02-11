@@ -89,8 +89,6 @@ cmsDriver.py step2 \
     --python_filename ${namebase}_${amass}_SIM_cfg.py --no_exec \
     --customise Configuration/DataProcessing/Utils.addMonitoring --number ${nevent} || exit $?;
 
-cmsDriver.py step2 --filein file:GEN.root --fileout file:SIM.root --mc --eventcontent RAWSIM --runUnscheduled --datatier GEN-SIM --conditions 106X_mcRun2_asymptotic_preVFP_v9 --beamspot Realistic25ns13TeV2016Collision --step SIM --nThreads 8 --geometry DB:Extended --era Run2_2016_HIPM --python_filename SIM_2016_cfg.py -n 10 --no_exec
-
 
 
 cmsRun -p ${namebase}_${amass}_SIM_cfg.py 
@@ -109,30 +107,22 @@ cmsRun -p  ${namebase}_${amass}_DIGIPremix_cfg.py
 
 echo "3.) Generating HLT for a mass ${amass} in new CMSSW  - 2016 preVFP"
 
-echo "1"
+
 cd ../../.
 export SCRAM_ARCH=slc7_amd64_gcc530
 if ! [ -r CMSSW_8_0_33_UL/src ] ; then
     scram p CMSSW_8_0_33_UL   
 fi
 mv CMSSW_10_6_20/src/${namebase}_${amass}_DIGIPremix.root CMSSW_8_0_33_UL/src/.  
-echo "2"
+
 cd CMSSW_8_0_33_UL/src/
 eval `scram runtime -sh`
-echo "3"
-# cmsDriver.py step4 \
-# --filein file:${namebase}_${amass}_DIGIPremix.root --fileout file:${namebase}_${amass}_HLT.root --mc --eventcontent RAWSIM \
-# --outputCommand "keep *_mix_*_*,keep *_genPUProtons_*_*" --datatier GEN-SIM-RAW --inputCommands "keep *","drop *_*_BMTF_*","drop *PixelFEDChannel*_*_*_*"\
-# --conditions 80X_mcRun2_asymptotic_2016_TrancheIV_v6 --customise_commands 'process.source.bypassVersionCheck = cms.untracked.bool(True)' \
-# --step HLT:25ns15e33_v4 --nThreads 8 --geometry DB:Extended --era Run2_2016 --python_filename  ${namebase}_${amass}_HLT_cfg.py  --no_exec \
-# --customise Configuration/DataProcessing/Utils.addMonitoring --number ${nevent} || exit $?;
+
 cmsDriver.py step4 \
 --filein file:${namebase}_${amass}_DIGIPremix.root --fileout file:${namebase}_${amass}_HLT.root --mc --eventcontent RAWSIM \
 --outputCommand "keep *_mix_*_*,keep *_genPUProtons_*_*" --datatier GEN-SIM-RAW --inputCommands "keep *","drop *_*_BMTF_*","drop *PixelFEDChannel*_*_*_*" --conditions 80X_mcRun2_asymptotic_2016_TrancheIV_v6 \
 --customise_commands 'process.source.bypassVersionCheck = cms.untracked.bool(True)' --step HLT:25ns15e33_v4 --nThreads 8 --geometry DB:Extended --era Run2_2016 --python_filename ${namebase}_${amass}_HLT_cfg.py --no_exec \
 --customise Configuration/DataProcessing/Utils.addMonitoring --number ${nevent} || exit $?
-echo "4"
-
 
 cmsRun -p  ${namebase}_${amass}_HLT_cfg.py
 
