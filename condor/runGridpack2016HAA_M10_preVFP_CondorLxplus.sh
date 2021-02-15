@@ -19,7 +19,7 @@ SAMPLEDIR=${BASEDIR}/samples
 
 HADRONIZER="externalLHEProducer_and_PYTHIA8_Hadronizer"
 namebase=${GP_f/.tar.xz/}
-nevent=100
+nevent=200
 #nevent=2000
 amass=10
 
