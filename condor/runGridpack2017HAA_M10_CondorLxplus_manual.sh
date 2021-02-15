@@ -6,12 +6,12 @@
 ## Usage: ./runOffGridpack.sh gridpack_file.tar.xz
 
 #For lxplus
-# export X509_USER_PROXY=$1
-# voms-proxy-info -all
-# voms-proxy-info -all -file $1
+export X509_USER_PROXY=$1
+voms-proxy-info -all
+voms-proxy-info -all -file $1
 
 export BASEDIR=`pwd`
-GP_f=$1
+GP_f=$2
 GRIDPACKDIR=${BASEDIR}/gridpacks/Production
 LHEDIR=${BASEDIR}/lhes
 SAMPLEDIR=${BASEDIR}/samples
@@ -20,7 +20,7 @@ SAMPLEDIR=${BASEDIR}/samples
 HADRONIZER="externalLHEProducer_and_PYTHIA8_Hadronizer"
 namebase=${GP_f/.tar.xz/}
 #nevent=500
-nevent=100
+nevent=10
 amass=10
 
 export VO_CMS_SW_DIR=/cvmfs/cms.cern.ch
@@ -36,9 +36,9 @@ cd CMSSW_10_6_20/src
 eval `scram runtime -sh`
 scram b -j 4
 tar xaf ${GRIDPACKDIR}/${GP_f}
-sed -i 's/exit 0//g' runcmsgrid.sh
-sed -i 's/^G//g' process/madevent/Cards/run_card.dat
-sed -i 's/[^[:print:]]//g' process/madevent/Cards/run_card.dat   
+#sed -i 's/exit 0//g' runcmsgrid.sh
+#sed -i 's/^G//g' process/madevent/Cards/run_card.dat
+#sed -i 's/[^[:print:]]//g' process/madevent/Cards/run_card.dat   
 ls -lrth
 
 RANDOMSEED=`od -vAn -N4 -tu4 < /dev/urandom`
@@ -77,9 +77,9 @@ genfragment=${namebase}_GEN_cfg_${amass}.py
 #     --python_filename ${genfragment} --no_exec -n ${nevent}
 
 cmsDriver.py Configuration/GenProduction/python/haa_a${amass}_cff.py         \
-    --filein file:${LHEDIR}/${namebase}.lhe --fileout file:${namebase}_${amass}_GEN.root         \
+    --fileout file:${namebase}_${amass}_GEN.root \
     --mc --eventcontent RAWSIM --datatier GEN --conditions 106X_mc2017_realistic_v8 \
-    --beamspot Realistic25ns13TeVEarly2017Collision --step GEN \
+    --beamspot Realistic25ns13TeVEarly2017Collision --step LHE,GEN \
     --era Run2_2017 --nThreads 3 --geometry DB:Extended \
     --customise Configuration/DataProcessing/Utils.addMonitoring         \
     --python_filename ${genfragment} --no_exec -n ${nevent}
