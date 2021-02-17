@@ -19,9 +19,9 @@ handleGenParticle = Handle ('vector<reco::GenParticle>')
 labelGenParticle = ('genParticles')
 
 #prefix="root://cmseos.fnal.gov//eos/uscms/store/user/zhangj/events/ALP/RunIISummer16DR80Premix/"
-prefix="/afs/cern.ch/work/r/rhabibul/UL-Samples/2017/"
+prefix="/afs/cern.ch/work/r/rhabibul/UL-Samples/2018/"
 #for mass in masses:
-out=ROOT.TFile("h_plotSignalGen_2017.root",'recreate')
+out=ROOT.TFile("h_plotSignalGen_2018.root",'recreate')
 
 hJet1Pt = ROOT.TH1F ("hJet1Pt", "leading jet Pt;P_{t};N_{events}", 150, 0, 1500)
 hDiTauM = ROOT.TH1F ("hDiTauM ", "di-tau mass;M_{#tau#tau};N_{events}", 100, 0, 100)
@@ -54,7 +54,7 @@ hMuTau_dR = ROOT.TH1F ("hMuTau_dR", "#mu - #tau delta R;#delta R;N_{events}", 20
     
     #for job in jobs:
     
-events=Events(prefix+"ggh01_M125_Toa01a01_M10_Tomumutautau_slc7_amd64_gcc700_CMSSW_10_6_19_tarball_35247313_10_recoAOD.root")
+events=Events(prefix+"ggh01_M125_Toa01a01_M15_Tomumutautau_slc7_amd64_gcc700_CMSSW_10_6_19_tarball_7918040_15_recoAOD.root")
 nevt=0
 for event in events:
     nevt+=1
