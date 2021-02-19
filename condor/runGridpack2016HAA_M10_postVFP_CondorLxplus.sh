@@ -19,8 +19,8 @@ SAMPLEDIR=${BASEDIR}/samples
 
 HADRONIZER="externalLHEProducer_and_PYTHIA8_Hadronizer"
 namebase=${GP_f/.tar.xz/}
-nevent=100
-nevent=2000
+#nevent=100
+nevent=1000
 amass=10
 
 export VO_CMS_SW_DIR=/cvmfs/cms.cern.ch

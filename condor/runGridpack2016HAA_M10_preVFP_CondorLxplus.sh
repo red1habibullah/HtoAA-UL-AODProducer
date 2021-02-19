@@ -19,8 +19,8 @@ SAMPLEDIR=${BASEDIR}/samples
 
 HADRONIZER="externalLHEProducer_and_PYTHIA8_Hadronizer"
 namebase=${GP_f/.tar.xz/}
-nevent=200
-#nevent=2000
+#nevent=200
+nevent=1000
 amass=10
 
 export VO_CMS_SW_DIR=/cvmfs/cms.cern.ch
@@ -151,6 +151,9 @@ cmsRun -p  ${namebase}_${amass}_recoAOD_cfg.py
 pwd
 cmd="ls -arlth *.root"
 echo $cmd && eval $cmd
+
+cmd_mv="mv ${namebase}_${amass}_recoAOD.root /afs/cern.ch/work/r/rhabibul/UL-Samples/2016-Pre/${namebase}_${amass}_recoAOD.root"
+echo $cmd_mv && eval $cmd_mv
 
 echo "DONE."
 echo "ALL Done"
