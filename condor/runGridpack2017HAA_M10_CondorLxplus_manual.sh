@@ -67,37 +67,37 @@ scram b -j 4
 echo "1.) Generating GEN for a mass ${amass}"
 genfragment=${namebase}_GEN_cfg_${amass}.py
 
-##Modify cmsDriver command with the latest conditions consistent with 
-# cmsDriver.py Configuration/GenProduction/python/haa_a${amass}_cff.py         \
-#     --filein file:${LHEDIR}/${namebase}.lhe         --fileout file:${namebase}_${amass}_GENSIM.root         \
-#     --mc --eventcontent RAWSIM --datatier GEN-SIM         --conditions 94X_mc2017_realistic_v11 \
-#     --beamspot Realistic25ns13TeVEarly2017Collision         --step GEN,SIM \
-#     --era Run2_2017 --nThreads 3         \
-#     --customise Configuration/DataProcessing/Utils.addMonitoring         \
-#     --python_filename ${genfragment} --no_exec -n ${nevent}
-
+Modify cmsDriver command with the latest conditions consistent with 
 cmsDriver.py Configuration/GenProduction/python/haa_a${amass}_cff.py         \
-    --fileout file:${namebase}_${amass}_GEN.root \
-    --mc --eventcontent RAWSIM --datatier GEN --conditions 106X_mc2017_realistic_v8 \
-    --beamspot Realistic25ns13TeVEarly2017Collision --step LHE,GEN \
-    --era Run2_2017 --nThreads 3 --geometry DB:Extended \
+    --filein file:${LHEDIR}/${namebase}.lhe         --fileout file:${namebase}_${amass}_GENSIM.root         \
+    --mc --eventcontent RAWSIM --datatier GEN-SIM         --conditions 94X_mc2017_realistic_v11 \
+    --beamspot Realistic25ns13TeVEarly2017Collision         --step GEN,SIM \
+    --era Run2_2017 --nThreads 3         \
     --customise Configuration/DataProcessing/Utils.addMonitoring         \
     --python_filename ${genfragment} --no_exec -n ${nevent}
+
+# cmsDriver.py Configuration/GenProduction/python/haa_a${amass}_cff.py         \
+#     --fileout file:${namebase}_${amass}_GEN.root \
+#     --mc --eventcontent RAWSIM --datatier GEN --conditions 106X_mc2017_realistic_v8 \
+#     --beamspot Realistic25ns13TeVEarly2017Collision --step LHE,GEN \
+#     --era Run2_2017 --nThreads 3 --geometry DB:Extended \
+#     --customise Configuration/DataProcessing/Utils.addMonitoring         \
+#     --python_filename ${genfragment} --no_exec -n ${nevent}
 
 
 
 #Make each file unique to make later publication possible
-linenumber=`grep -n 'process.source' ${genfragment} | awk '{print $1}'`
-linenumber=${linenumber%:*}
-total_linenumber=`cat ${genfragment} | wc -l`
-bottom_linenumber=$((total_linenumber - $linenumber ))
-tail -n $bottom_linenumber ${genfragment} > tail.py
-head -n $linenumber ${genfragment} > head.py
-echo "    firstRun = cms.untracked.uint32(1)," >> head.py
-echo "    firstLuminosityBlock = cms.untracked.uint32($RANDOMSEED)," >> head.py
-cat tail.py >> head.py
-mv head.py ${genfragment}
-rm -rf tail.py
+# linenumber=`grep -n 'process.source' ${genfragment} | awk '{print $1}'`
+# linenumber=${linenumber%:*}
+# total_linenumber=`cat ${genfragment} | wc -l`
+# bottom_linenumber=$((total_linenumber - $linenumber ))
+# tail -n $bottom_linenumber ${genfragment} > tail.py
+# head -n $linenumber ${genfragment} > head.py
+# echo "    firstRun = cms.untracked.uint32(1)," >> head.py
+# echo "    firstLuminosityBlock = cms.untracked.uint32($RANDOMSEED)," >> head.py
+# cat tail.py >> head.py
+# mv head.py ${genfragment}
+# rm -rf tail.py
 
 echo "IT HAS BEEN DONE!"
 cmsRun -p ${genfragment}
