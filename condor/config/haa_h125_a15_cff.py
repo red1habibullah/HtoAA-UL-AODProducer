@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-
 externalLHEProducer = cms.EDProducer("ExternalLHEProducer",
                                      args = cms.vstring('/afs/cern.ch/user/r/rhabibul/HtoAA-UL-Production_New/HtoAA-UL-AODProducer/condor/gridpacks/Production/ggh01_M125_Toa01a01_M15_Tomumutautau_slc7_amd64_gcc700_CMSSW_10_6_19_tarball.tar.xz'),
     nEvents = cms.untracked.uint32(100),
@@ -25,9 +24,9 @@ generator = cms.EDFilter("Pythia8HadronizerFilter",
         pythia8CommonSettingsBlock,
         pythia8CP5SettingsBlock,
         pythia8PSweightsSettingsBlock,
-        parameterSets = cms.vstring('pythia8CommonSettings',
+        parameterSets = cms.vstring('pythia8CommonSettings,
                                     'pythia8CP5Settings',
-                                    'pythia8PSweightsSettings'
+                                    'pythia8PSweightsSettings',
                                     )
     )
 )

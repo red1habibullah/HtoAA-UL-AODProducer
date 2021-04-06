@@ -20,7 +20,7 @@ SAMPLEDIR=${BASEDIR}/samples
 HADRONIZER="externalLHEProducer_and_PYTHIA8_Hadronizer"
 namebase=${GP_f/.tar.xz/}
 #nevent=500
-nevent=100
+nevent=10
 amass=10
 
 export VO_CMS_SW_DIR=/cvmfs/cms.cern.ch
@@ -36,7 +36,7 @@ cd CMSSW_10_6_20/src
 eval `scram runtime -sh`
 scram b -j 4
 tar xaf ${GRIDPACKDIR}/${GP_f}
-sed -i 's/exit 0//g' runcmsgrid.sh
+#sed -i 's/exit 0//g' runcmsgrid.sh
 #sed -i 's/^G//g' process/madevent/Cards/run_card.dat
 
 ls -lrth
